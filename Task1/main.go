@@ -1,3 +1,11 @@
+// ### 🔗 Endpoint yang Wajib Ada
+
+// * **GET** `/categories` → Ambil semua kategori
+// * **POST** `/categories` → Tambah kategori
+// * **PUT** `/categories/{id}` → Update kategori
+// * **GET** `/categories/{id}` → Ambil detail satu kategori
+// * **DELETE** `/categories/{id}` → Hapus kategori
+
 package main
 
 import (
@@ -15,63 +23,24 @@ type Category struct {
 }
 
 var categories = []Category{
-	{ID: 1, Name: "Makanan", Description: "Kategori makanan"},
-	{ID: 2, Name: "Minuman", Description: "Kategori minuman"},
+	{ID: 1, Name: "Food", Description: "Kategori makanan"},
+	{ID: 2, Name: "Beverage", Description: "Kategori minuman"},
+	{ID: 3, Name: "Personal care", Description: "Kategori perawatan diri"},
 }
 
-/*
-HEALTH CHECK
-GET /health
-*/
-func health(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"status":  "OK",
-		"message": "API running",
-	})
-}
-
-/*
-GET /categories
-*/
-func getCategories(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(categories)
-}
-
-/*
-POST /categories
-*/
-func createCategory(w http.ResponseWriter, r *http.Request) {
-	var newCategory Category
-	if err := json.NewDecoder(r.Body).Decode(&newCategory); err != nil {
-		http.Error(w, "invalid request", http.StatusBadRequest)
-		return
-	}
-
-	newCategory.ID = len(categories) + 1
-	categories = append(categories, newCategory)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newCategory)
-}
-
-/*
-GET /categories/{id}
-*/
+// GET /api/categories/{id}
 func getCategoryByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/categories/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "invalid category ID", http.StatusBadRequest)
 		return
 	}
 
-	for _, c := range categories {
-		if c.ID == id {
+	for _, p := range categories {
+		if p.ID == id {
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(c)
+			json.NewEncoder(w).Encode(p)
 			return
 		}
 	}
@@ -79,86 +48,126 @@ func getCategoryByID(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "category not found", http.StatusNotFound)
 }
 
-/*
-PUT /categories/{id}
-*/
-func updateCategory(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/categories/")
+// PUT /api/categories/{id}
+func updateCategoryByID(w http.ResponseWriter, r *http.Request) {
+	// get id dari request
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
+
+	// convert jadi int pake strconv.Atoi(id)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "invalid category ID", http.StatusBadRequest)
 		return
 	}
 
-	var updated Category
-	if err := json.NewDecoder(r.Body).Decode(&updated); err != nil {
+	// get data dari request
+	var updateCategory Category
+	err = json.NewDecoder(r.Body).Decode(&updateCategory)
+	if err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
 		return
 	}
 
+	// loop category, cari id, ganti sesuai data dari request
 	for i := range categories {
 		if categories[i].ID == id {
-			updated.ID = id
-			categories[i] = updated
+			updateCategory.ID = id
+			categories[i] = updateCategory
 
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(updated)
+			json.NewEncoder(w).Encode(updateCategory)
 			return
 		}
 	}
 
-	http.Error(w, "category not found", http.StatusNotFound)
+	http.Error(w, "category belum ada", http.StatusNotFound)
 }
 
-/*
-DELETE /categories/{id}
-*/
-func deleteCategory(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/categories/")
+// DELETE /api/categories/{id}
+func deleteCategoryById(w http.ResponseWriter, r *http.Request) {
+	// get id
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
+
+	// convert jadi int pake strconv.Atoi(id)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "invalid category ID", http.StatusBadRequest)
 		return
 	}
 
-	for i, c := range categories {
-		if c.ID == id {
+	// loop category, cari ID dan index yang mau dihapus
+	for i, p := range categories {
+		if p.ID == id {
+			// buat slice baru dengan data sebelum dan sesudah index
 			categories = append(categories[:i], categories[i+1:]...)
+
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "category deleted",
+				"message": "sukses delete",
 			})
 			return
 		}
 	}
 
-	http.Error(w, "category not found", http.StatusNotFound)
+	http.Error(w, "category belum ada", http.StatusNotFound)
 }
 
+
+// Main Function
+
 func main() {
-	// cek status api /health
-	http.HandleFunc("/health", health)
-
-	// GET & POST /categories
-	http.HandleFunc("/categories", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			getCategories(w, r)
-		} else if r.Method == "POST" {
-			createCategory(w, r)
-		}
-	})
-
-	// GET, PUT, DELETE /categories/{id}
-	http.HandleFunc("/categories/", func(w http.ResponseWriter, r *http.Request) {
+	// GET /api/categories/{id}
+	// PUT /api/categories/{id}
+	// DELETE /api/categories/{id}
+	http.HandleFunc("/api/categories/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "GET" {
 			getCategoryByID(w, r)
 		} else if r.Method == "PUT" {
-			updateCategory(w, r)
+			updateCategoryByID(w, r)
 		} else if r.Method == "DELETE" {
-			deleteCategory(w, r)
+			deleteCategoryById(w, r)
 		}
 	})
 
-	fmt.Println("Server running at http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	// GET /api/categories
+	// POST /api/categories
+	http.HandleFunc("/api/categories", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(categories)
+		} else if r.Method == "POST" {
+			// baca dari request
+			var newCategory Category
+			fmt.Println(r.Body)
+			err := json.NewDecoder(r.Body).Decode(&newCategory)
+			if err != nil {
+				http.Error(w, "invalid request", http.StatusBadRequest)
+				return
+			}
+
+			// masukkan data ke dalam variable category baru
+			newCategory.ID = len(categories) + 1
+			categories = append(categories, newCategory)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated) // 201
+			json.NewEncoder(w).Encode(newCategory)
+		}
+	})
+
+	// cek server /health
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "200 - success",
+			"message": "server is running normally",
+		})
+	})
+
+	fmt.Println("server running di localhost:8080")
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println("Error running server")
+	}
 }
