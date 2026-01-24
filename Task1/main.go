@@ -173,7 +173,7 @@ func main() {
 		}
 	})
 
-	PORT := ":3000"
+	PORT := ":80"
 	fmt.Println("server running di https://localhost"+PORT)
 	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
