@@ -28,6 +28,31 @@ var categories = []Category{
 	{ID: 3, Name: "Personal care", Description: "Kategori perawatan diri"},
 }
 
+// GET /api/categories
+func getCategories(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(categories)
+}
+
+// POST /api/categories
+func createCategory(w http.ResponseWriter, r *http.Request) {
+	var newCategory Category
+	// fmt.Println(r.Body)
+	err := json.NewDecoder(r.Body).Decode(&newCategory)
+	if err != nil {
+		http.Error(w, "invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// masukkan data ke dalam variable category baru
+	newCategory.ID = len(categories) + 1
+	categories = append(categories, newCategory)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated) // 201
+	json.NewEncoder(w).Encode(newCategory)
+}
+
 // GET /api/categories/{id}
 func getCategoryByID(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/categories/")
@@ -112,10 +137,29 @@ func deleteCategoryById(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "category belum ada", http.StatusNotFound)
 }
 
-
-// Main Function
-
+/*
+	Main Function
+*/
 func main() {
+	// cek server /health
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "200 - success",
+			"message": "server is running normally",
+		})
+	})
+
+	// GET /api/categories
+	// POST /api/categories
+	http.HandleFunc("/api/categories", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "GET" {
+			getCategories(w, r)
+		} else if r.Method == "POST" {
+			createCategory(w, r)
+		}
+	})
+
 	// GET /api/categories/{id}
 	// PUT /api/categories/{id}
 	// DELETE /api/categories/{id}
@@ -129,44 +173,9 @@ func main() {
 		}
 	})
 
-	// GET /api/categories
-	// POST /api/categories
-	http.HandleFunc("/api/categories", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(categories)
-		} else if r.Method == "POST" {
-			// baca dari request
-			var newCategory Category
-			fmt.Println(r.Body)
-			err := json.NewDecoder(r.Body).Decode(&newCategory)
-			if err != nil {
-				http.Error(w, "invalid request", http.StatusBadRequest)
-				return
-			}
-
-			// masukkan data ke dalam variable category baru
-			newCategory.ID = len(categories) + 1
-			categories = append(categories, newCategory)
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusCreated) // 201
-			json.NewEncoder(w).Encode(newCategory)
-		}
-	})
-
-	// cek server /health
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"status":  "200 - success",
-			"message": "server is running normally",
-		})
-	})
-
-	fmt.Println("server running di localhost:8080")
-
-	err := http.ListenAndServe(":8080", nil)
+	PORT := ":8080"
+	fmt.Println("server running di https://localhost"+PORT)
+	err := http.ListenAndServe(PORT, nil)
 	if err != nil {
 		fmt.Println("Error running server")
 	}
