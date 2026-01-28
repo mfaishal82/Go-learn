@@ -12,9 +12,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/viper"
 )
+
+type Config struct {
+	port string `mapstructure:"PORT"`
+	DBConn string `mapstructure:"DB_CONN"`
+}
 
 type Category struct {
 	ID          int    `json:"id"`
@@ -263,6 +271,18 @@ func deleteProductById(w http.ResponseWriter, r *http.Request) {
 	Main Function
 */
 func main() {
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	if _, err := os.Stat(".env"); err == nil {
+		viper.SetConfigFile(".env")
+		_ = viper.ReadInConfig()
+	}
+
+	config := Config{
+		port : viper.GetString("PORT"),
+		DBConn : viper.GetString("DB_CONN"),
+	}
 	// cek server /health
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -318,9 +338,9 @@ func main() {
 		}
 	})
 
-	PORT := ":80"
-	fmt.Println("server running di https://localhost"+PORT)
-	err := http.ListenAndServe(PORT, nil)
+	// PORT := ":8080"
+	fmt.Println("server running di https://localhost"+config.port)
+	err := http.ListenAndServe(config.port, nil)
 	if err != nil {
 		fmt.Println("Error running server")
 	}
