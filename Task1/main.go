@@ -274,7 +274,8 @@ func main() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	if _, err := os.Stat(".env"); err == nil {
+	_, error := os.Stat(".env")
+	if error == nil {
 		viper.SetConfigFile(".env")
 		_ = viper.ReadInConfig()
 	}
@@ -339,8 +340,9 @@ func main() {
 	})
 
 	// PORT := ":8080"
-	fmt.Println("server running di https://localhost"+config.port)
-	err := http.ListenAndServe(config.port, nil)
+	fmt.Println("server running di https://localhost:"+config.port)
+
+	err := http.ListenAndServe(":"+config.port, nil)
 	if err != nil {
 		fmt.Println("Error running server")
 	}
