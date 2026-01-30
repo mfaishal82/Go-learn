@@ -2,6 +2,10 @@
 
 ## Route yang tersedia
 
+```
+http://localhost:8080/health
+```
+
 ### Product
 ```
 GET http://localhost:8080/api/products
