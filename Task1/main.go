@@ -62,6 +62,10 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
+	categoryRepo := repositories.NewCategoryRepository(db)
+	categoryService := services.NewCategoryService(categoryRepo)
+	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
 	// cek server /health
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -72,10 +76,10 @@ func main() {
 	})
 
 	// Routes products
-	http.HandleFunc("/api/products", productHandler.HandleProducts)
-	http.HandleFunc("/api/products/", productHandler.HandleProductByID)
-	// http.HandleFunc("/api/categories", categoryHandler.HandleCategories)
-	// http.HandleFunc("/api/categories/", categoryHandler.HandleCategoryByID)
+	http.HandleFunc("/api/product", productHandler.HandleProducts)
+	http.HandleFunc("/api/product/", productHandler.HandleProductByID)
+	http.HandleFunc("/api/category", categoryHandler.HandleCategory)
+	http.HandleFunc("/api/category/", categoryHandler.HandleCategoryByID)
 
 	// PORT := ":8080"
 	fmt.Println("server running di https://localhost:"+config.port)

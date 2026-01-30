@@ -28,7 +28,7 @@ func (h *ProductHandler) HandleProducts(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// Handle Product by id - GET/PUT/DELETE /api/products/{id}
+// Handle Product by id - GET/PUT/DELETE /api/product/{id}
 func (h *ProductHandler) HandleProductByID(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		h.GetByID(w, r)
@@ -75,7 +75,7 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 // GET product by ID
 func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/products/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
@@ -94,7 +94,7 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // PUT update product
 func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "api/products/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product id", http.StatusBadRequest)
@@ -122,7 +122,7 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 // DELETE product
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/products/")
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
