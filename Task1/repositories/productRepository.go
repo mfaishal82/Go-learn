@@ -17,7 +17,7 @@ func NewProductRepository(db *sql.DB) *ProductRepository{
 
 // GET all products
 func (repo *ProductRepository) GetAll() ([]models.Product, error) {
-	query := "SELECT products.id, products.name, price, stock, category_id, categories.name as category_name FROM products JOIN categories on products.category_id = categories.id"
+	query := "SELECT id, name, price, stock FROM products"
 	rows, err := repo.db.Query(query)
 
 	if err != nil {
@@ -29,7 +29,7 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 	for rows.Next() {
 		var product models.Product
 		err := rows.Scan(
-			&product.ID, &product.Name, &product.Price, &product.Stock, &product.CategoryID, &product.Category,
+			&product.ID, &product.Name, &product.Price, &product.Stock,
 		)
 		if err != nil {
 			return nil, err
@@ -42,11 +42,10 @@ func (repo *ProductRepository) GetAll() ([]models.Product, error) {
 }
 
 // CREATE product
-func (repo *ProductRepository) Create(product *models.Product) error {
+func (repo *ProductRepository) Create(product *models.ProductDetail) error {
 	query := `INSERT INTO products (name, price, stock, category_id)
 	VALUES ($1, $2, $3, $4)
-	RETURNING
-		id,
+	RETURNING id,
 		(SELECT name FROM categories WHERE id = $4) AS category_name`
 	err := repo.db.QueryRow(query, product.Name, product.Price, product.Stock, product.CategoryID).Scan(&product.ID, &product.Category)
 
@@ -58,13 +57,13 @@ func (repo *ProductRepository) Create(product *models.Product) error {
 }
 
 // GET product by ID
-func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
+func (repo *ProductRepository) GetByID(id int) (*models.ProductDetail, error) {
 	query := `SELECT products.id, products.name, price, stock, category_id, categories.name as category_name
 	FROM products
 	FULL JOIN categories on products.category_id = categories.id
 	WHERE products.id = $1`
 
-	product := models.Product{}
+	product := models.ProductDetail{}
 	err := repo.db.QueryRow(query, id).Scan(
 		&product.ID, &product.Name, &product.Price, &product.Stock, &product.CategoryID, &product.Category,
 	)
@@ -81,7 +80,7 @@ func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
 }
 
 // UPDATE product
-func (repo *ProductRepository) Update(product *models.Product) error {
+func (repo *ProductRepository) Update(product *models.ProductDetail) error {
 	query := "UPDATE products SET name = $1, price = $2, stock = $3, category_id = $4 WHERE id = $5"
 	result, err := repo.db.Exec(query, product.Name, product.Price, product.Stock, product.CategoryID, product.ID)
 

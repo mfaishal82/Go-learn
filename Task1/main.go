@@ -84,7 +84,11 @@ func main() {
 	// ""/api/category/" -> Bisa jg pake idStr := strings.TrimPrefix(r.URL.Path, "/api/category/")
 
 	// PORT := ":8080"
-	fmt.Println("server running di https://localhost:"+config.port)
+	if config.port != "80" {
+		fmt.Println("server running di http://localhost:"+config.port)
+	} else {
+		fmt.Println("server running di https://localhost:"+config.port)
+	}
 
 	err = http.ListenAndServe(":"+config.port, nil)
 	if err != nil {

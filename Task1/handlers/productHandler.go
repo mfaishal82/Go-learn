@@ -54,7 +54,7 @@ func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 // POST create product
 func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
-	product := models.Product{}
+	product := models.ProductDetail{}
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -100,7 +100,7 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product := models.Product{}
+	product := models.ProductDetail{}
 	// var product models.Product
 	err = json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
