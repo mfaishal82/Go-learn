@@ -8,18 +8,18 @@ http://localhost:8080/health
 
 ### Product
 ```
-GET http://localhost:8080/api/products
-POST http://localhost:8080/api/products
-GET http://localhost:8080/api/products/{id}
-PUT http://localhost:8080/api/products/{id}
-DELETE http://localhost:8080/api/products/{id}
+GET http://localhost:8080/api/product
+POST http://localhost:8080/api/product
+GET http://localhost:8080/api/product/{id}
+PUT http://localhost:8080/api/product/{id}
+DELETE http://localhost:8080/api/product/{id}
 ```
 
 ### Category
 ```
-GET http://localhost:8080/api/categories
-POST http://localhost:8080/api/categories
-GET http://localhost:8080/api/categories/{id}
-PUT http://localhost:8080/api/categories/{id}
-DELETE http://localhost:8080/api/categories/{id}
+GET http://localhost:8080/api/category
+POST http://localhost:8080/api/category
+GET http://localhost:8080/api/category/{id}
+PUT http://localhost:8080/api/category/{id}
+DELETE http://localhost:8080/api/category/{id}
 ```

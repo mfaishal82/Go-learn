@@ -26,7 +26,7 @@ func (s *CategoryService) GetByID(id int) (*models.Category, error) {
 }
 
 func (s *CategoryService) Update(data *models.Category) error {
-	return s.repo.Create(data)
+	return s.repo.Update(data)
 }
 
 func (s *CategoryService) Delete(id int) error {
