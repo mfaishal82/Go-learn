@@ -77,9 +77,11 @@ func main() {
 
 	// Routes products
 	http.HandleFunc("/api/product", productHandler.HandleProducts)
-	http.HandleFunc("/api/product/", productHandler.HandleProductByID)
+	http.HandleFunc("/api/product/{id}", productHandler.HandleProductByID)
+	// "/api/product/{id}" -> Bisa pake idStr := r.PathValue("id")
 	http.HandleFunc("/api/category", categoryHandler.HandleCategory)
 	http.HandleFunc("/api/category/", categoryHandler.HandleCategoryByID)
+	// ""/api/category/" -> Bisa jg pake idStr := strings.TrimPrefix(r.URL.Path, "/api/category/")
 
 	// PORT := ":8080"
 	fmt.Println("server running di https://localhost:"+config.port)

@@ -6,7 +6,6 @@ import (
 	"kasir-api/services"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type ProductHandler struct {
@@ -75,7 +74,7 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 // GET product by ID
 func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
+	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
@@ -94,7 +93,7 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // PUT update product
 func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
+	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product id", http.StatusBadRequest)
@@ -122,7 +121,7 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 // DELETE product
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/product/")
+	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
