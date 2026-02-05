@@ -11,14 +11,20 @@ type ProductRepository struct {
 	db *sql.DB
 }
 
-func NewProductRepository(db *sql.DB) *ProductRepository{
+func NewProductRepository(db *sql.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 
 // GET all products
-func (repo *ProductRepository) GetAll() ([]models.Product, error) {
+func (repo *ProductRepository) GetAll(name string) ([]models.Product, error) {
 	query := "SELECT products.id, products.name, price, stock, category_id, categories.name as category_name FROM products JOIN categories on products.category_id = categories.id"
-	rows, err := repo.db.Query(query)
+
+	args := []interface{}{}
+	if name != "" {
+		query += " WHERE products.name ILIKE $1"
+		args = append(args, "%"+name+"%")
+	}
+	rows, err := repo.db.Query(query, args...)
 
 	if err != nil {
 		return nil, err
