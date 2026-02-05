@@ -3,3 +3,5 @@
 .env
 main
 tmp
+sql
+.air.toml
