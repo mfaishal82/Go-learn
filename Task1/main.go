@@ -24,12 +24,12 @@ import (
 )
 
 type Config struct {
-	port string `mapstructure:"PORT"`
+	port   string `mapstructure:"PORT"`
 	DBConn string `mapstructure:"DB_CONN"`
 }
 
 /*
-	Main Function
+Main Function
 */
 func main() {
 	// konfigurasi viper
@@ -43,8 +43,8 @@ func main() {
 	}
 
 	config := Config{
-		port : viper.GetString("PORT"),
-		DBConn : viper.GetString("DB_CONN"),
+		port:   viper.GetString("PORT"),
+		DBConn: viper.GetString("DB_CONN"),
 	}
 
 	// log.Println("PORT:", config.port)
@@ -66,6 +66,10 @@ func main() {
 	categoryService := services.NewCategoryService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
 
+	transactionRepo := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
 	// cek server /health
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -83,11 +87,13 @@ func main() {
 	http.HandleFunc("/api/category/", categoryHandler.HandleCategoryByID)
 	// ""/api/category/" -> Bisa jg pake idStr := strings.TrimPrefix(r.URL.Path, "/api/category/")
 
+	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout)
+
 	// PORT := ":8080"
 	if config.port != "80" {
-		fmt.Println("server running di http://localhost:"+config.port)
+		fmt.Println("server running di http://localhost:" + config.port)
 	} else {
-		fmt.Println("server running di https://localhost:"+config.port)
+		fmt.Println("server running di https://localhost:" + config.port)
 	}
 
 	err = http.ListenAndServe(":"+config.port, nil)
