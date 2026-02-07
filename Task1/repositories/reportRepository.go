@@ -15,7 +15,7 @@ func NewReportRepository(db *sql.DB) *ReportRepository {
 
 func (repo *ReportRepository) GetReport() (*models.Report, error) {
 	// Query total revenue hari ini
-	totalSelling := 0
+	var totalSelling *int
 	err := repo.db.QueryRow(
 		"SELECT SUM(total_amount) FROM transactions WHERE DATE(created_at) = CURRENT_DATE",
 	).Scan(&totalSelling)
@@ -24,8 +24,8 @@ func (repo *ReportRepository) GetReport() (*models.Report, error) {
 	}
 
 	totalRevenue := 0
-	if totalSelling == nil {
-		totalRevenue = totalSelling
+	if totalSelling != nil {
+		totalRevenue = *totalSelling
 	}
 
 	// Query total transaksi hari ini
