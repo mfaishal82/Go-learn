@@ -57,6 +57,15 @@ func main() {
 	}
 	defer db.Close()
 
+	// cek server /health
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":  "200 - success",
+			"message": "server is running normally",
+		})
+	})
+
 	// Dependency injection
 	productRepo := repositories.NewProductRepository(db)
 	productService := services.NewProductService(productRepo)
@@ -70,24 +79,27 @@ func main() {
 	transactionService := services.NewTransactionService(transactionRepo)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
-	// cek server /health
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]string{
-			"status":  "200 - success",
-			"message": "server is running normally",
-		})
-	})
+	reportRepo := repositories.NewReportRepository(db)
+	reportService := services.NewReportService(reportRepo)
+	reportHandler := handlers.NewReportHandler(reportService)
 
-	// Routes products
+	/* Products */
 	http.HandleFunc("/api/product", productHandler.HandleProducts)
 	http.HandleFunc("/api/product/{id}", productHandler.HandleProductByID)
 	// "/api/product/{id}" -> Bisa pake idStr := r.PathValue("id")
+
+	/* Category */
 	http.HandleFunc("/api/category", categoryHandler.HandleCategory)
 	http.HandleFunc("/api/category/", categoryHandler.HandleCategoryByID)
 	// ""/api/category/" -> Bisa jg pake idStr := strings.TrimPrefix(r.URL.Path, "/api/category/")
 
+	/* Transaction */
 	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout)
+
+	/* Report */
+	http.HandleFunc("/api/report", reportHandler.GetReport)
+	http.HandleFunc("/api/report/hari-ini", reportHandler.GetReport)
+	http.HandleFunc("/api/report/today", reportHandler.GetReport)
 
 	// PORT := ":8080"
 	if config.port != "80" {
