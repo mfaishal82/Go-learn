@@ -44,9 +44,9 @@ func (repo *TransactionRepository) CreateTransaction(items []models.CheckoutItem
 		subtotal := productPrice * item.Quantity
 		totalAmount += subtotal
 
-		if stock < item.Quantity {
-			return nil, fmt.Errorf("insufficient stock product")
-		}
+		// if stock < item.Quantity {
+		// 	return nil, fmt.Errorf("insufficient stock product")
+		// }
 
 		// kurangi jumlah stock
 		_, err = tx.Exec("UPDATE products SET stock = stock - $1 WHERE id = $2", item.Quantity, item.ProductID)
